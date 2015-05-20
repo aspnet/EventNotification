@@ -14,7 +14,8 @@ namespace Microsoft.Framework.Notification.Internal
 {
     public static class Converter
     {
-        private static int _counter = 0;
+        // Used to provide uniqueness for type names.
+        private static int _proxyCounter;
 
         private static AssemblyBuilder AssemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(new AssemblyName("ProxyHolderAssembly"), AssemblyBuilderAccess.Run);
         private static ModuleBuilder ModuleBuilder = AssemblyBuilder.DefineDynamicModule("Main Module");
@@ -185,7 +186,7 @@ namespace Microsoft.Framework.Notification.Internal
                 //
                 // For now we'll just store null, and later generate a stub getter that returns default(T).
                 var sourceProperty = sourceProperties.Where(p => p.Name == targetProperty.Name).FirstOrDefault();
-                if (sourceProperty != null)
+                if (sourceProperty != null && sourceProperty.CanRead && sourceProperty.GetGetMethod().IsPublic)
                 {
                     var propertyKey = new Tuple<Type, Type>(sourceProperty.PropertyType, targetProperty.PropertyType);
                     if (!VerifyProxySupport(context, propertyKey))
@@ -206,7 +207,7 @@ namespace Microsoft.Framework.Notification.Internal
 
             var baseType = typeof(ProxyBase<>).MakeGenericType(sourceType);
             var typeBuilder = ModuleBuilder.DefineType(
-                "ProxyType" + _counter++ + " wrapping:" + sourceType.Name + " to look like:" + targetType.Name,
+                "ProxyType" + _proxyCounter++ + " wrapping:" + sourceType.Name + " to look like:" + targetType.Name,
                 TypeAttributes.Class,
                 baseType,
                 new Type[] { targetType });
