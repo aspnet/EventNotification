@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{D75011A4-D
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.Framework.Notification", "src\Microsoft.Framework.Notification\Microsoft.Framework.Notification.xproj", "{4C660D0B-32C5-43D0-899D-73FF60352172}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.Framework.Notification.Test", "test\Microsoft.Framework.Notification.Test\Microsoft.Framework.Notification.Test.xproj", "{51E95E1C-FE88-4DAF-8E03-3FC3153A03AF}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Microsoft.Framework.Notification.Tests", "test\Microsoft.Framework.Notification.Tests\Microsoft.Framework.Notification.Tests.xproj", "{51E95E1C-FE88-4DAF-8E03-3FC3153A03AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
