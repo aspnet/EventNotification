@@ -1,16 +1,20 @@
-﻿{
+{
     "dependencies": {
-        "Microsoft.Framework.Notification": "1.0.0-*",
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
+        "Microsoft.Framework.Notification": "1.0.0-beta7",
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta7"
     },
     "compile": "..\\..\\src\\Microsoft.Framework.Notification\\ReflectionNotifierMethodAdapter.cs",
-    "compilationOptions": {"define": ["TEST"]},
+    "compilationOptions": {
+        "define": [
+            "TEST"
+        ]
+    },
     "commands": {
         "run": "xunit.runner.aspnet",
         "test": "xunit.runner.aspnet"
     },
     "frameworks": {
-        "dnx451": { },
-        "dnxcore50": { }
+        "dnx451": {},
+        "dnxcore50": {}
     }
 }
