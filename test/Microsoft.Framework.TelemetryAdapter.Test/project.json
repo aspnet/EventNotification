@@ -1,8 +1,8 @@
 {
     "dependencies": {
-        "Microsoft.AspNet.Testing": "1.0.0-*",
+        "Microsoft.AspNet.Testing": "1.0.0-beta8",
         "Microsoft.Framework.TelemetryAdapter": "1.0.0-beta8",
-        "xunit.runner.aspnet": "2.1.0-beta1-build60"
+        "xunit.runner.aspnet": "2.0.0-aspnet-beta8"
     },
     "compile": "../../src/Microsoft.Framework.TelemetryAdapter/ReflectionTelemetrySourceMethodAdapter.cs",
     "compilationOptions": {
