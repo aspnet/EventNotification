@@ -16,11 +16,16 @@ namespace Microsoft.Extensions.DiagnosticAdapter
         private readonly IDiagnosticSourceMethodAdapter _methodAdapter;
 
         public DiagnosticSourceAdapter(object target)
-            : this(target, null, new ProxyDiagnosticSourceMethodAdapter())
+            : this(target, (Func<string, bool>)null, new ProxyDiagnosticSourceMethodAdapter())
         {
         }
 
         public DiagnosticSourceAdapter(object target, Func<string, bool> isEnabled)
+            : this(target, isEnabled, methodAdapter: new ProxyDiagnosticSourceMethodAdapter())
+        {
+        }
+
+        public DiagnosticSourceAdapter(object target, Func<string, object, object, bool> isEnabled)
             : this(target, isEnabled, methodAdapter: new ProxyDiagnosticSourceMethodAdapter())
         {
         }
@@ -31,11 +36,40 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             IDiagnosticSourceMethodAdapter methodAdapter)
         {
             _methodAdapter = methodAdapter;
-
             _listener = EnlistTarget(target, isEnabled);
         }
 
+        public DiagnosticSourceAdapter(
+            object target,
+            Func<string, object, object, bool> isEnabled,
+            IDiagnosticSourceMethodAdapter methodAdapter)
+        {
+            _methodAdapter = methodAdapter;
+
+            _listener = EnlistTarget(target, isEnabled);
+
+        }
+
         private static Listener EnlistTarget(object target, Func<string, bool> isEnabled)
+        {
+            var listener = new Listener(target, isEnabled);
+
+            var typeInfo = target.GetType().GetTypeInfo();
+            var methodInfos = typeInfo.DeclaredMethods;
+            foreach (var methodInfo in methodInfos)
+            {
+                var diagnosticNameAttribute = methodInfo.GetCustomAttribute<DiagnosticNameAttribute>();
+                if (diagnosticNameAttribute != null)
+                {
+                    var subscription = new Subscription(methodInfo);
+                    listener.Subscriptions.Add(diagnosticNameAttribute.Name, subscription);
+                }
+            }
+
+            return listener;
+        }
+
+        private static Listener EnlistTarget(object target, Func<string, object, object, bool> isEnabled)
         {
             var listener = new Listener(target, isEnabled);
 
@@ -63,7 +97,19 @@ namespace Microsoft.Extensions.DiagnosticAdapter
 
             return
                 _listener.Subscriptions.ContainsKey(diagnosticName) &&
-                (_listener.IsEnabled == null || _listener.IsEnabled(diagnosticName));
+                (_listener.IsEnabled == null || _listener.IsEnabled(diagnosticName, null, null));
+        }
+
+        public bool IsEnabled(string diagnosticName, object arg1, object arg2 = null)
+        {
+            if (_listener.Subscriptions.Count == 0)
+            {
+                return false;
+            }
+
+            return
+                _listener.Subscriptions.ContainsKey(diagnosticName) &&
+                (_listener.IsEnabled == null || _listener.IsEnabled(diagnosticName, arg1, arg2));
         }
 
         public void Write(string diagnosticName, object parameters)
@@ -79,7 +125,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
                 return;
             }
 
-            if (_listener.IsEnabled != null && !_listener.IsEnabled(diagnosticName))
+            if (_listener.IsEnabled != null && !_listener.IsEnabled(diagnosticName, null, null))
             {
                 return;
             }
@@ -130,8 +176,15 @@ namespace Microsoft.Extensions.DiagnosticAdapter
 
         private class Listener
         {
-
             public Listener(object target, Func<string, bool> isEnabled)
+            {
+                Target = target;
+                IsEnabled = (isEnabled == null) ? (Func<string, object, object, bool>) null : (a, b, c) => isEnabled(a);
+
+                Subscriptions = new Dictionary<string, Subscription>(StringComparer.Ordinal);
+            }
+
+            public Listener(object target, Func<string, object, object, bool> isEnabled)
             {
                 Target = target;
                 IsEnabled = isEnabled;
@@ -139,7 +192,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
                 Subscriptions = new Dictionary<string, Subscription>(StringComparer.Ordinal);
             }
 
-            public Func<string, bool> IsEnabled { get; }
+            public Func<string, object, object, bool> IsEnabled { get; }
 
             public object Target { get; }
 
