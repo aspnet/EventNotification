@@ -236,13 +236,12 @@ namespace Microsoft.Extensions.DiagnosticAdapter
         }
 
         [Fact]
-        public void Write_True_CallsIsEnabled()
+        public void Write_EnlistedDiagnosticName_DoesNotCallIsEnabled()
         {
             // Arrange
             var callCount = 0;
-            Func<string, bool> isEnabled = (name) =>
+            Func<string, object, object, bool> isEnabled = (name, arg1, arg2) =>
             {
-                Assert.Equal("One", name);
                 callCount++;
                 return true;
             };
@@ -254,18 +253,17 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             adapter.Write("One", new { });
 
             // Assert
-            Assert.Equal(1, callCount);
+            Assert.Equal(0, callCount);
             Assert.Equal(1, target.OneCallCount);
         }
 
         [Fact]
-        public void Write_False_CallsIsEnabled()
+        public void Write_NonEnlistedDiagnosticName_DoesNotCallIsEnabled()
         {
             // Arrange
             var callCount = 0;
-            Func<string, bool> isEnabled = (name) =>
+            Func<string, object, object, bool> isEnabled = (name, arg1, arg2) =>
             {
-                Assert.Equal("One", name);
                 callCount++;
                 return false;
             };
@@ -274,10 +272,10 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             var adapter = CreateAdapter(target, isEnabled);
 
             // Act
-            adapter.Write("One", new { });
+            adapter.Write("Two", new { });
 
             // Assert
-            Assert.Equal(1, callCount);
+            Assert.Equal(0, callCount);
             Assert.Equal(0, target.OneCallCount);
         }
 

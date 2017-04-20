@@ -36,7 +36,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             IDiagnosticSourceMethodAdapter methodAdapter)
         {
             _methodAdapter = methodAdapter;
-            _listener = EnlistTarget(target, isEnabled);
+            _listener = EnlistTarget(target, (isEnabled == null) ? (Func<string, object, object, bool>)null : (a, b, c) => isEnabled(a));
         }
 
         public DiagnosticSourceAdapter(
@@ -45,28 +45,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             IDiagnosticSourceMethodAdapter methodAdapter)
         {
             _methodAdapter = methodAdapter;
-
             _listener = EnlistTarget(target, isEnabled);
-
-        }
-
-        private static Listener EnlistTarget(object target, Func<string, bool> isEnabled)
-        {
-            var listener = new Listener(target, isEnabled);
-
-            var typeInfo = target.GetType().GetTypeInfo();
-            var methodInfos = typeInfo.DeclaredMethods;
-            foreach (var methodInfo in methodInfos)
-            {
-                var diagnosticNameAttribute = methodInfo.GetCustomAttribute<DiagnosticNameAttribute>();
-                if (diagnosticNameAttribute != null)
-                {
-                    var subscription = new Subscription(methodInfo);
-                    listener.Subscriptions.Add(diagnosticNameAttribute.Name, subscription);
-                }
-            }
-
-            return listener;
         }
 
         private static Listener EnlistTarget(object target, Func<string, object, object, bool> isEnabled)
@@ -90,14 +69,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
 
         public bool IsEnabled(string diagnosticName)
         {
-            if (_listener.Subscriptions.Count == 0)
-            {
-                return false;
-            }
-
-            return
-                _listener.Subscriptions.ContainsKey(diagnosticName) &&
-                (_listener.IsEnabled == null || _listener.IsEnabled(diagnosticName, null, null));
+            return IsEnabled(diagnosticName, null);
         }
 
         public bool IsEnabled(string diagnosticName, object arg1, object arg2 = null)
@@ -121,11 +93,6 @@ namespace Microsoft.Extensions.DiagnosticAdapter
 
             Subscription subscription;
             if (!_listener.Subscriptions.TryGetValue(diagnosticName, out subscription))
-            {
-                return;
-            }
-
-            if (_listener.IsEnabled != null && !_listener.IsEnabled(diagnosticName, null, null))
             {
                 return;
             }
