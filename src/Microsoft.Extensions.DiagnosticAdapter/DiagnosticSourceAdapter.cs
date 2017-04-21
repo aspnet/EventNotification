@@ -34,9 +34,8 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             object target,
             Func<string, bool> isEnabled,
             IDiagnosticSourceMethodAdapter methodAdapter)
+            : this(target, isEnabled: (isEnabled == null) ? (Func<string, object, object, bool>)null : (a, b, c) => isEnabled(a), methodAdapter: methodAdapter)
         {
-            _methodAdapter = methodAdapter;
-            _listener = EnlistTarget(target, (isEnabled == null) ? (Func<string, object, object, bool>)null : (a, b, c) => isEnabled(a));
         }
 
         public DiagnosticSourceAdapter(
@@ -143,14 +142,6 @@ namespace Microsoft.Extensions.DiagnosticAdapter
 
         private class Listener
         {
-            public Listener(object target, Func<string, bool> isEnabled)
-            {
-                Target = target;
-                IsEnabled = (isEnabled == null) ? (Func<string, object, object, bool>) null : (a, b, c) => isEnabled(a);
-
-                Subscriptions = new Dictionary<string, Subscription>(StringComparer.Ordinal);
-            }
-
             public Listener(object target, Func<string, object, object, bool> isEnabled)
             {
                 Target = target;

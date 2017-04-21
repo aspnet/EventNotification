@@ -33,13 +33,10 @@ namespace Microsoft.Extensions.DiagnosticAdapter
         {
             public int OneCallCount { get; private set; }
 
-            public object TargetInfo { get; private set; }
-
             [DiagnosticName("One")]
             public void One()
             {
                 ++OneCallCount;
-                TargetInfo = "Target info";
             }
         }
 
@@ -128,6 +125,25 @@ namespace Microsoft.Extensions.DiagnosticAdapter
 
             // Act & Assert
             Assert.False(adapter.IsEnabled("One", "Target info"));
+            Assert.Equal(1, callCount);
+        }
+
+        [Fact]
+        public void IsEnabled_RegisterWithoutContext_CallInEnabledWithContext()
+        {
+            // Arrange
+            var callCount = 0;
+            Func<string, bool> isEnabled = (name) =>
+            {
+                Assert.Equal("One", name);
+                callCount++;
+                return false;
+            };
+
+            var adapter = CreateAdapter(new OneTarget(), (a, b, c) => isEnabled(a));
+
+            // Act & Assert
+            Assert.False(adapter.IsEnabled("One", new object(), new object()));
             Assert.Equal(1, callCount);
         }
 
