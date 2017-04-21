@@ -129,7 +129,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
         }
 
         [Fact]
-        public void IsEnabled_RegisterWithoutContext_CallInEnabledWithContext()
+        public void IsEnabled_RegisterWithoutContext_CallIsEnabledWithContext()
         {
             // Arrange
             var callCount = 0;
