@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         }
 
         [Fact]
-        public void GetProxyType_IfAlreadyInCache_AlsoAddedToVisited()
+        public void GetProxyType_IfAlreadyInCache_AlsoAddedToVisited_FromType()
         {
             // Arrange
             var sourceType = typeof(ProxyPerson);
@@ -81,6 +81,28 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             var result2 = ProxyTypeEmitter.VerifyProxySupport(context, key);
 
             // Assert
+            Assert.True(result);
+            Assert.True(result2);
+            Assert.Single(context.Visited);
+            Assert.Equal(key, context.Visited.Single().Key);
+        }
+
+        [Fact]
+        public void GetProxyType_IfAlreadyInCache_AlsoAddedToVisited_FromError()
+        {
+            // Arrange
+            var sourceType = typeof(ProxyPerson);
+            var targetType = typeof(Person);
+            var key = new Tuple<Type, Type>(sourceType, targetType);
+            var cache = new ProxyTypeCache();
+            cache[key] = ProxyTypeCacheResult.FromError(key, "Test Error");
+            var context = new ProxyTypeEmitter.ProxyBuilderContext(cache, targetType, sourceType);
+
+            // Act
+            var result = ProxyTypeEmitter.VerifyProxySupport(context, key);
+
+            // Assert
+            Assert.False(result);
             Assert.Single(context.Visited);
             Assert.Equal(key, context.Visited.Single().Key);
         }
