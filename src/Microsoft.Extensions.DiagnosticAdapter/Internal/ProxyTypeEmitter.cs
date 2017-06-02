@@ -80,7 +80,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             }
             else if (result.Type == null)
             {
-                // This is an identity convertion
+                // This is an identity conversion
                 return null;
             }
             else
@@ -89,7 +89,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             }
         }
 
-        private static bool VerifyProxySupport(ProxyBuilderContext context, Tuple<Type, Type> key)
+        internal static bool VerifyProxySupport(ProxyBuilderContext context, Tuple<Type, Type> key)
         {
             var sourceType = key.Item1;
             var targetType = key.Item2;
@@ -101,10 +101,17 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             }
 
             ProxyTypeCacheResult cacheResult;
+            var verificationResult = new VerificationResult();
             if (context.Cache.TryGetValue(key, out cacheResult))
             {
+                bool isError = cacheResult.IsError;
+                if (!isError && !context.Visited.ContainsKey(key))
+                {
+                    context.Visited.Add(key, verificationResult);
+                }
+
                 // If we get here we've got a published conversion or error, so we can stop searching.
-                return !cacheResult.IsError;
+                return !isError;
             }
 
             if (targetType == sourceType || targetType.GetTypeInfo().IsAssignableFrom(sourceType.GetTypeInfo()))
@@ -123,7 +130,6 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
 
             // This is a combination we haven't seen before, and it *might* support proxy generation, so let's 
             // start trying.
-            var verificationResult = new VerificationResult();
             context.Visited.Add(key, verificationResult);
 
             // We support conversions from IList<T> -> IReadOnlyList<U> and IReadOnlyList<T> -> IReadOnlyList<U>
@@ -453,7 +459,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             return null;
         }
 
-        private class ProxyBuilderContext
+        internal class ProxyBuilderContext
         {
             public ProxyBuilderContext(ProxyTypeCache cache, Type targetType, Type sourceType)
             {
@@ -474,7 +480,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             public Dictionary<Tuple<Type, Type>, VerificationResult> Visited { get; }
         }
 
-        private class VerificationResult
+        internal class VerificationResult
         {
             public ConstructorInfo Constructor { get; set; }
 

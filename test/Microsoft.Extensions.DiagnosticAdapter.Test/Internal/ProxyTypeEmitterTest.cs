@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.AspNetCore.Testing.xunit;
 using Xunit;
 
 namespace Microsoft.Extensions.DiagnosticAdapter.Internal
@@ -64,6 +63,26 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
 
             // Assert
             Assert.Null(result);
+        }
+
+        [Fact]
+        public void GetProxyType_Assignable_InCache()
+        {
+            // Arrange
+            var sourceType = typeof(ProxyPerson);
+            var targetType = typeof(Person);
+            var key = new Tuple<Type, Type>(sourceType, targetType);
+            var cache = new ProxyTypeCache();
+            cache[key] = ProxyTypeCacheResult.FromType(key, sourceType, sourceType.GetConstructor(Array.Empty<Type>()));
+            var context = new ProxyTypeEmitter.ProxyBuilderContext(cache, targetType, sourceType);
+
+            // Act
+            var result = ProxyTypeEmitter.VerifyProxySupport(context, key);
+            var result2 = ProxyTypeEmitter.VerifyProxySupport(context, key);
+
+            // Assert
+            Assert.Single(context.Visited);
+            Assert.Equal(key, context.Visited.SingleOrDefault().Key);
         }
 
         [Fact]
@@ -726,6 +745,14 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         public class DerivedPerson : Person
         {
             public double CoolnessFactor { get; set; }
+        }
+
+        public class ProxyPerson
+        {
+            public double CoolnessFactor { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public Address Address { get; set; }
         }
 
         public class Address
