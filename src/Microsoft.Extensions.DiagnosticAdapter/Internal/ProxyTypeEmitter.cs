@@ -104,14 +104,10 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             var verificationResult = new VerificationResult();
             if (context.Cache.TryGetValue(key, out cacheResult))
             {
-                bool isError = cacheResult.IsError;
-                if (!isError && !context.Visited.ContainsKey(key))
-                {
-                    context.Visited.Add(key, verificationResult);
-                }
+                context.Visited.Add(key, verificationResult);
 
                 // If we get here we've got a published conversion or error, so we can stop searching.
-                return !isError;
+                return !cacheResult.IsError;
             }
 
             if (targetType == sourceType || targetType.GetTypeInfo().IsAssignableFrom(sourceType.GetTypeInfo()))
