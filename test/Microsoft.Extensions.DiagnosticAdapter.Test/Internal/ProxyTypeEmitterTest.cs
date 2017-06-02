@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         }
 
         [Fact]
-        public void GetProxyType_Assignable_InCache()
+        public void GetProxyType_IfAlreadyInCache_AlsoAddedToVisited()
         {
             // Arrange
             var sourceType = typeof(ProxyPerson);
@@ -82,7 +82,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
 
             // Assert
             Assert.Single(context.Visited);
-            Assert.Equal(key, context.Visited.SingleOrDefault().Key);
+            Assert.Equal(key, context.Visited.Single().Key);
         }
 
         [Fact]
