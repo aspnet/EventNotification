@@ -66,10 +66,10 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                 // We only want to publish the results after all of the proxies are totally generated.
                 foreach (var verificationResult in context.Visited)
                 {
-                    cache[verificationResult.Key] = ProxyTypeCacheResult.FromType(
+                    cache.TryAdd(verificationResult.Key, ProxyTypeCacheResult.FromType(
                         verificationResult.Key,
                         verificationResult.Value.Type,
-                        verificationResult.Value.Constructor);
+                        verificationResult.Value.Constructor));
                 }
 
                 return context.Visited[context.Key].Type;
@@ -104,8 +104,9 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             var verificationResult = new VerificationResult();
             if (context.Cache.TryGetValue(key, out cacheResult))
             {
+                verificationResult.Constructor = cacheResult.Constructor;
+                verificationResult.Type = cacheResult.Type;
                 context.Visited.Add(key, verificationResult);
-
                 // If we get here we've got a published conversion or error, so we can stop searching.
                 return !cacheResult.IsError;
             }
