@@ -104,9 +104,8 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             var verificationResult = new VerificationResult();
             if (context.Cache.TryGetValue(key, out cacheResult))
             {
-                // If we have a key in the cache because of an operation that completed before,
-                // but context.Visited.ContainsKey(key) above returned false, then we must add the key
-                // to the context.Visited list.
+                // There may be a possible race condition, which adds the type we are generating to the cache
+                // before we verify it. This ensures that the result is stored in context.Visited in that scenario.
                 verificationResult.Constructor = cacheResult.Constructor;
                 verificationResult.Type = cacheResult.Type;
                 context.Visited.Add(key, verificationResult);
