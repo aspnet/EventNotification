@@ -69,11 +69,13 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         public void GetProxyType_IfAlreadyInCache_AlsoAddedToVisited_FromType()
         {
             // Arrange
-            var sourceType = typeof(ProxyPerson);
-            var targetType = typeof(Person);
+            var targetType = typeof(IPerson);
+            var sourceType = typeof(Person);
+
             var key = new Tuple<Type, Type>(sourceType, targetType);
             var cache = new ProxyTypeCache();
             cache[key] = ProxyTypeCacheResult.FromType(key, sourceType, sourceType.GetConstructor(Array.Empty<Type>()));
+
             var context = new ProxyTypeEmitter.ProxyBuilderContext(cache, targetType, sourceType);
 
             // Act
@@ -91,11 +93,13 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         public void GetProxyType_IfAlreadyInCache_AlsoAddedToVisited_FromError()
         {
             // Arrange
-            var sourceType = typeof(ProxyPerson);
-            var targetType = typeof(Person);
+            var targetType = typeof(IPerson);
+            var sourceType = typeof(Person);
+
             var key = new Tuple<Type, Type>(sourceType, targetType);
             var cache = new ProxyTypeCache();
             cache[key] = ProxyTypeCacheResult.FromError(key, "Test Error");
+
             var context = new ProxyTypeEmitter.ProxyBuilderContext(cache, targetType, sourceType);
 
             // Act
@@ -103,7 +107,6 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
 
             // Assert
             Assert.False(result);
-            Assert.Single(context.Visited);
             Assert.Equal(key, context.Visited.Single().Key);
         }
 
@@ -767,14 +770,6 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         public class DerivedPerson : Person
         {
             public double CoolnessFactor { get; set; }
-        }
-
-        public class ProxyPerson
-        {
-            public double CoolnessFactor { get; set; }
-            public string FirstName { get; set; }
-            public string LastName { get; set; }
-            public Address Address { get; set; }
         }
 
         public class Address
