@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NETCOREAPP2_0 || NET461
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -116,7 +117,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
 
             if (targetType == sourceType || targetType.GetTypeInfo().IsAssignableFrom(sourceType.GetTypeInfo()))
             {
-                // If we find a trivial conversion, then that will work. 
+                // If we find a trivial conversion, then that will work.
                 return true;
             }
 
@@ -128,7 +129,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                 return false;
             }
 
-            // This is a combination we haven't seen before, and it *might* support proxy generation, so let's 
+            // This is a combination we haven't seen before, and it *might* support proxy generation, so let's
             // start trying.
             context.Visited.Add(key, verificationResult);
 
@@ -154,7 +155,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                     VerificationResult elementResult;
                     context.Visited.TryGetValue(elementKey, out elementResult);
 
-                    var proxyType = elementResult?.Type?.GetTypeInfo() ?? (TypeInfo)elementResult?.TypeBuilder;
+                    var proxyType = elementResult?.Type?.GetTypeInfo() ?? elementResult?.TypeBuilder as Type;
                     if (proxyType == null)
                     {
                         // No proxy needed for elements.
@@ -164,7 +165,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                     else
                     {
                         // We need to proxy each of the elements. Let's generate a type.
-                        GenerateProxyTypeForList(elementKey.Item1, elementKey.Item2, proxyType.AsType(), verificationResult);
+                        GenerateProxyTypeForList(elementKey.Item1, elementKey.Item2, proxyType, verificationResult);
                     }
 
                     return true;
@@ -212,7 +213,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                     return false;
                 }
 
-                // To allow for flexible versioning, we want to allow missing properties in the source. 
+                // To allow for flexible versioning, we want to allow missing properties in the source.
                 //
                 // For now we'll just store null, and later generate a stub getter that returns default(T).
                 var sourceProperty = sourceProperties.Where(p => p.Name == targetProperty.Name).FirstOrDefault();
@@ -492,3 +493,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         }
     }
 }
+#elif NETSTANDARD2_0
+#else
+#error Target frameworks should be updated
+#endif
