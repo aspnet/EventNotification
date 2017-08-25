@@ -2,7 +2,7 @@
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
     "Microsoft.AspNetCore.Testing": "1.1.1",
-    "Microsoft.Extensions.DiagnosticAdapter": "1.1.1",
+    "Microsoft.Extensions.DiagnosticAdapter": "1.1.2",
     "xunit": "2.2.0-*"
   },
   "testRunner": "xunit",
