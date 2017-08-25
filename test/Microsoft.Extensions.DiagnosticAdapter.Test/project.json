@@ -6,6 +6,9 @@
     "xunit": "2.2.0-*"
   },
   "testRunner": "xunit",
+  "buildOptions": {
+    "keyFile": "../../tools/Key.snk"
+  },
   "frameworks": {
     "netcoreapp1.1": {
       "dependencies": {

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xunit;
 
 namespace Microsoft.Extensions.DiagnosticAdapter.Internal
@@ -74,7 +75,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
 
             var key = new Tuple<Type, Type>(sourceType, targetType);
             var cache = new ProxyTypeCache();
-            cache[key] = ProxyTypeCacheResult.FromType(key, sourceType, sourceType.GetConstructor(Array.Empty<Type>()));
+            cache[key] = ProxyTypeCacheResult.FromType(key, sourceType, sourceType.GetTypeInfo().GetConstructor(new Type[0]));
 
             var context = new ProxyTypeEmitter.ProxyBuilderContext(cache, targetType, sourceType);
 
