@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+#if NETCOREAPP2_0 || NET461
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -154,7 +155,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                     VerificationResult elementResult;
                     context.Visited.TryGetValue(elementKey, out elementResult);
 
-                    var proxyType = elementResult?.Type ?? (Type)elementResult?.TypeBuilder;
+                    var proxyType = elementResult?.Type?.GetTypeInfo() ?? elementResult?.TypeBuilder as Type;
                     if (proxyType == null)
                     {
                         // No proxy needed for elements.
@@ -492,3 +493,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
         }
     }
 }
+#elif NETSTANDARD2_0
+#else
+#error Target frameworks should be updated
+#endif
