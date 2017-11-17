@@ -18,7 +18,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter
             var proxyMethod = ProxyMethodEmitter.CreateProxyMethod(method, inputType);
             return (listener, data) => proxyMethod(listener, data, _factory);
 #elif NETSTANDARD2_0
-            throw new PlatformNotSupportedException("This platform does not support creating proxy types and methods");
+            throw new PlatformNotSupportedException("This platform does not support creating proxy types and methods.");
 #else
 #error Target frameworks should be updated
 #endif

@@ -155,7 +155,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                     VerificationResult elementResult;
                     context.Visited.TryGetValue(elementKey, out elementResult);
 
-                    var proxyType = elementResult?.Type?.GetTypeInfo() ?? elementResult?.TypeBuilder as Type;
+                    var proxyType = elementResult?.Type ?? (Type)elementResult?.TypeBuilder;
                     if (proxyType == null)
                     {
                         // No proxy needed for elements.
