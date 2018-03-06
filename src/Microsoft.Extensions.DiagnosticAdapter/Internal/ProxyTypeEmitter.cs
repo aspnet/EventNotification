@@ -14,7 +14,6 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
     public static class ProxyTypeEmitter
     {
         private static readonly Type[] EmptyTypes = new Type[0];
-        private static object _lock = new object();
 
         public static Type GetProxyType(ProxyTypeCache cache, Type targetType, Type sourceType)
         {
