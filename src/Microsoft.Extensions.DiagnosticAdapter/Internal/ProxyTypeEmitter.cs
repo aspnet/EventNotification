@@ -165,11 +165,8 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
                     }
                     else
                     {
-                        lock (_lock)
-                        {
-                            // We need to proxy each of the elements. Let's generate a type.
-                            GenerateProxyTypeForList(elementKey.Item1, elementKey.Item2, proxyType, verificationResult);
-                        }
+                        // We need to proxy each of the elements. Let's generate a type.
+                        GenerateProxyTypeForList(elementKey.Item1, elementKey.Item2, proxyType, verificationResult);
                     }
 
                     return true;
@@ -245,10 +242,7 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             }
 
             verificationResult.Mappings = propertyMappings;
-            lock (_lock)
-            {
-                GenerateProxyTypeFromProperties(sourceType, targetType, verificationResult);
-            }
+            GenerateProxyTypeFromProperties(sourceType, targetType, verificationResult);
 
             return true;
         }

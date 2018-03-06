@@ -5,6 +5,7 @@
 using System;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading;
 
 namespace Microsoft.Extensions.DiagnosticAdapter.Internal
 {
@@ -38,7 +39,8 @@ namespace Microsoft.Extensions.DiagnosticAdapter.Internal
             Type baseType,
             Type[] interfaces)
         {
-            name = name + "_" + Counter++;
+            Interlocked.Increment(ref Counter);
+            name = name + "_" + Counter;
             return ModuleBuilder.DefineType(name, attributes, baseType, interfaces);
         }
 
